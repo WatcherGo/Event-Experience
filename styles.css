@@ -1037,9 +1037,7 @@ svg { display: block; }
 
 
 
-.scanner-simulation-bg::after {
-  content: 'LIVE FEED — PERIMETER CAMERA';
-  position: absolute;
+
 
 .scanner-card {
   flex: 1;
