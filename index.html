@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PromptWar — Real-Time Crowd Orchestration Engine</title>
+  <meta name="description" content="Stadium crowd flow management powered by a 4-tier human-sensor network. Dynamically routes attendees to the fastest gate in real time." />
+  <meta name="theme-color" content="#07071a" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <a href="#app" class="skip-link">Skip to main content</a>
+  <div id="app">
+
+  <!-- ═══════════════════════════════════════════════════════
+       SCREEN: LOADING
+       ═══════════════════════════════════════════════════════ -->
+  <div id="screen-loading" class="screen active">
+    <div class="loader-logo">Prompt<span>War</span></div>
+    <div class="loader-bar"></div>
+    <div class="loader-text">Initialising Engine</div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SCREEN: LOGIN
+       ═══════════════════════════════════════════════════════ -->
+  <div id="screen-login" class="screen">
+    <div class="login-container">
+
+      <div class="login-brand">
+        <div class="brand-name">Prompt<em>War</em></div>
+        <div class="brand-tagline">Real-Time Crowd Orchestration Engine</div>
+        <div class="login-event-badge">
+          <span class="live-dot"></span>
+          IPL 2026 · RCB vs MI · M. Chinnaswamy Stadium
+        </div>
+      </div>
+
+      <div>
+        <div class="login-roles-label" style="margin-bottom:12px">Select your role to enter</div>
+        <div class="role-cards" id="role-cards" role="radiogroup" aria-label="Select app role">
+          <div class="role-card" data-role="host" id="role-host" role="radio" aria-checked="false" tabindex="0">
+            <div class="role-card-icon" aria-hidden="true">🖥️</div>
+            <div class="role-card-title">Host</div>
+            <div class="role-card-desc">Monitor stadium pulse, manage volunteers & dispatch missions</div>
+          </div>
+          <div class="role-card" data-role="attendee" id="role-attendee" role="radio" aria-checked="false" tabindex="0">
+            <div class="role-card-icon" aria-hidden="true">🎫</div>
+            <div class="role-card-title">Attendee</div>
+            <div class="role-card-desc">Get your dynamic QR &amp; optimal gate assignment</div>
+          </div>
+          <div class="role-card" data-role="volunteer" id="role-volunteer" role="radio" aria-checked="false" tabindex="0">
+            <div class="role-card-icon" aria-hidden="true">📡</div>
+            <div class="role-card-title">Volunteer</div>
+            <div class="role-card-desc">Scan perimeter QRs, broadcast GPS &amp; accept missions</div>
+          </div>
+          <div class="role-card" data-role="provider" id="role-provider" role="radio" aria-checked="false" tabindex="0">
+            <div class="role-card-icon" aria-hidden="true">🍔</div>
+            <div class="role-card-title">Provider</div>
+            <div class="role-card-desc">Toggle stall status so attendees see live availability</div>
+          </div>
+        </div>
+      </div>
+
+      <button class="login-enter-btn" id="login-enter-btn" disabled aria-label="Enter application">
+        Select a role to continue
+      </button>
+
+      <div class="login-demo-note">
+        🔬 <strong>Demo Mode</strong> — All 4 roles work simultaneously across browser tabs.<br/>
+        Open this page in 4 tabs, choose a different role in each.
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SCREEN: HOST DASHBOARD
+       ═══════════════════════════════════════════════════════ -->
+  <div id="screen-host" class="screen">
+    <nav class="top-nav">
+      <div class="nav-brand">Prompt<span>War</span></div>
+      <div class="nav-event" id="host-event-name">IPL 2026 · RCB vs MI</div>
+      <a href="https://www.google.com/maps/search/?api=1&query=M.+Chinnaswamy+Stadium" target="_blank" class="nav-map-link" aria-label="View venue on Google Maps">
+        📍 M. Chinnaswamy
+      </a>
+      <div class="nav-live-badge"><span class="dot"></span>LIVE</div>
+      <div class="nav-role-badge">HOST</div>
+      <button class="nav-logout" id="host-logout">Sign out</button>
+    </nav>
+
+    <div class="host-body">
+      <!-- Left: Venue Map -->
+      <div class="host-map-panel">
+        <div class="map-panel-header">
+          <h3>Stadium Pulse — Live Map</h3>
+          <div class="nav-live-badge"><span class="dot"></span>GPS ACTIVE</div>
+        </div>
+
+        <div class="host-stats-strip">
+          <div class="host-stat">
+            <div class="host-stat-value" id="host-stat-entered">0</div>
+            <div class="host-stat-label">Entered</div>
+          </div>
+          <div class="host-stat">
+            <div class="host-stat-value" id="host-stat-volunteers">0</div>
+            <div class="host-stat-label">Volunteers Active</div>
+          </div>
+          <div class="host-stat">
+            <div class="host-stat-value" id="host-stat-avgwait">—</div>
+            <div class="host-stat-label">Avg Wait</div>
+          </div>
+          <div class="host-stat">
+            <div class="host-stat-value" id="host-stat-scans">0</div>
+            <div class="host-stat-label">Scans Today</div>
+          </div>
+        </div>
+
+        <!-- SVG Venue Map -->
+        <div class="venue-map-container" id="venue-map-container">
+          <svg id="venue-svg" viewBox="0 0 600 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Stadium rings -->
+            <ellipse cx="300" cy="210" rx="275" ry="190" class="stadium-outer" />
+            <ellipse cx="300" cy="210" rx="200" ry="135" fill="none" stroke="rgba(0,229,255,0.07)" stroke-width="40" />
+            <!-- Field -->
+            <ellipse cx="300" cy="210" rx="130" ry="88" class="stadium-field" />
+            <!-- Center circle -->
+            <circle cx="300" cy="210" r="22" fill="none" stroke="rgba(16,185,129,0.4)" stroke-width="1" />
+            <!-- Halfway line -->
+            <line x1="170" y1="210" x2="430" y2="210" stroke="rgba(16,185,129,0.25)" stroke-width="1" stroke-dasharray="4 4"/>
+            <!-- Zone lines (quadrant guides) -->
+            <line x1="300" y1="22" x2="300" y2="398" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+            <line x1="25" y1="210" x2="575" y2="210" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+
+            <!-- Gate North -->
+            <g class="gate-marker" id="svg-gate-G1" data-gate="G1">
+              <rect x="275" y="10" width="50" height="22" rx="4" fill="rgba(16,185,129,0.8)"/>
+              <text x="300" y="21" class="gate-label">G1 N</text>
+            </g>
+            <!-- Gate South -->
+            <g class="gate-marker" id="svg-gate-G2" data-gate="G2">
+              <rect x="275" y="388" width="50" height="22" rx="4" fill="rgba(245,158,11,0.8)"/>
+              <text x="300" y="399" class="gate-label">G2 S</text>
+            </g>
+            <!-- Gate East -->
+            <g class="gate-marker" id="svg-gate-G3" data-gate="G3">
+              <rect x="558" y="188" width="22" height="44" rx="4" fill="rgba(16,185,129,0.8)"/>
+              <text x="569" y="210" class="gate-label" transform="rotate(90 569 210)">G3 E</text>
+            </g>
+            <!-- Gate West -->
+            <g class="gate-marker" id="svg-gate-G4" data-gate="G4">
+              <rect x="20" y="188" width="22" height="44" rx="4" fill="rgba(239,68,68,0.8)"/>
+              <text x="31" y="210" class="gate-label" transform="rotate(-90 31 210)">G4 W</text>
+            </g>
+
+            <!-- Zone labels -->
+            <text x="300" y="75" text-anchor="middle" fill="rgba(255,255,255,0.1)" font-size="9" font-family="Inter" letter-spacing="1" text-transform="uppercase">NORTH STAND</text>
+            <text x="300" y="365" text-anchor="middle" fill="rgba(255,255,255,0.1)" font-size="9" font-family="Inter">SOUTH STAND</text>
+            <text x="505" y="215" text-anchor="middle" fill="rgba(255,255,255,0.1)" font-size="9" font-family="Inter">EAST</text>
+            <text x="95" y="215" text-anchor="middle" fill="rgba(255,255,255,0.1)" font-size="9" font-family="Inter">WEST</text>
+          </svg>
+
+          <!-- Volunteer dots injected here by JS -->
+          <div id="host-vol-dots"></div>
+        </div>
+      </div>
+
+      <!-- Right: Control Panels -->
+      <div class="host-right-panel">
+
+        <!-- Gate Velocity -->
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <h3>⚡ Gate Velocity (A→B)</h3>
+            <span class="panel-badge" id="badge-gates">4</span>
+          </div>
+          <table class="gate-table">
+            <thead>
+              <tr>
+                <th>Gate</th>
+                <th>Transit</th>
+                <th>Load</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="host-gate-tbody">
+              <!-- Rows injected by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mission Dispatch -->
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <h3>🚨 Mission Dispatch</h3>
+            <span class="panel-badge" id="badge-missions">0</span>
+          </div>
+          <div id="host-missions-list">
+            <div class="empty-state">No active missions</div>
+          </div>
+          <div style="padding:12px;border-top:1px solid var(--border)">
+            <select id="mission-vol-select" style="background:var(--bg-elevated);border:1px solid var(--border-bright);border-radius:6px;color:var(--text-primary);font-size:0.75rem;padding:6px 10px;width:100%;margin-bottom:8px">
+              <option value="">Select volunteer…</option>
+            </select>
+            <select id="mission-zone-select" style="background:var(--bg-elevated);border:1px solid var(--border-bright);border-radius:6px;color:var(--text-primary);font-size:0.75rem;padding:6px 10px;width:100%;margin-bottom:8px">
+              <option value="North Stand">North Stand — High Density</option>
+              <option value="South Stand">South Stand — Bottleneck</option>
+              <option value="East Gate">East Gate — Queue Build</option>
+              <option value="West Gate">West Gate — Crowd Surge</option>
+              <option value="Parking Lot A">Parking Lot A — Perimeter Control</option>
+            </select>
+            <button class="mission-dispatch-btn" id="dispatch-mission-btn" style="width:100%;text-align:center">
+              🚨 Dispatch Mission
+            </button>
+          </div>
+        </div>
+
+        <!-- Volunteer List -->
+        <div class="panel-card">
+          <div class="panel-card-header">
+            <h3>📡 Volunteer GPS</h3>
+            <span class="panel-badge" id="badge-volunteers">0</span>
+          </div>
+          <div id="host-volunteer-list">
+            <div class="empty-state">No volunteers active</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SCREEN: ATTENDEE
+       ═══════════════════════════════════════════════════════ -->
+  <div id="screen-attendee" class="screen">
+    <nav class="top-nav">
+      <div class="nav-brand">Prompt<span>War</span></div>
+      <div class="nav-event" id="attendee-event-name">IPL 2026 · RCB vs MI</div>
+      <div class="nav-role-badge">ATTENDEE</div>
+      <button class="nav-logout" id="attendee-logout">Sign out</button>
+    </nav>
+
+    <div class="attendee-body">
+      <div class="attendee-card">
+        <div class="attendee-event-header">
+          <div class="attendee-event-name" id="att-event-name">IPL 2026 — RCB vs MI</div>
+          <div class="attendee-event-venue">M. Chinnaswamy Stadium, Bengaluru</div>
+        </div>
+
+        <!-- Phase 1: Awaiting perimeter scan -->
+        <div class="attendee-phase phase-awaiting active" id="att-phase-waiting">
+          <div class="phase-title">Present this QR at the perimeter</div>
+          <div class="qr-container">
+            <div class="qr-border"></div>
+            <canvas id="attendee-qr-canvas" width="175" height="175"></canvas>
+          </div>
+          <div class="qr-state-badge">
+            <span class="pulse-dot"></span>
+            Awaiting volunteer scan
+          </div>
+          <div class="qr-scan-hint">
+            A volunteer will scan your QR within 50m of the gates.<br/>
+            Your optimal gate will be revealed instantly.
+          </div>
+          <div style="font-size:0.65rem;color:var(--text-muted);font-family:var(--font-mono)" id="att-id-display"></div>
+        </div>
+
+        <!-- Phase 2: Gate Revealed -->
+        <div class="attendee-phase phase-reveal" id="att-phase-reveal">
+          <div class="reveal-header">✅ Gate Assigned</div>
+          <div class="gate-reveal-card">
+            <div class="gate-direction-label" id="att-gate-direction">Proceed to</div>
+            <div class="gate-number-display" id="att-gate-number">—</div>
+            <div class="gate-wait-chip">
+              <span>⏱</span>
+              <span id="att-gate-wait">~3 min wait</span>
+            </div>
+          </div>
+          <div style="font-size:0.75rem;color:var(--text-secondary);text-align:center;line-height:1.5">
+            Head to the gate above. Scan your QR at the turnstile to enter.
+          </div>
+          <button class="reveal-proceed-btn" id="att-simulate-entry-btn">
+            ✅ Simulate Turnstile Entry
+          </button>
+        </div>
+
+        <!-- Phase 3: In Stadium -->
+        <div class="attendee-phase phase-stadium" id="att-phase-stadium">
+          <div class="stadium-welcome">
+            <h2>You're in! 🎉</h2>
+            <p>Welcome to M. Chinnaswamy Stadium</p>
+          </div>
+          <div>
+            <div class="seat-input-row">
+              <input type="text" class="seat-input" id="att-seat-input" placeholder="Your seat (e.g. Row C-14)" />
+              <button class="seat-save-btn" id="att-seat-save">Save</button>
+            </div>
+          </div>
+          <div class="stalls-section-label">🍽️ Live Stall Availability</div>
+          <div class="stalls-grid" id="att-stalls-grid">
+            <!-- Stall cards injected by JS -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SCREEN: VOLUNTEER
+       ═══════════════════════════════════════════════════════ -->
+  <div id="screen-volunteer" class="screen">
+    <nav class="top-nav">
+      <div class="nav-brand">Prompt<span>War</span></div>
+      <div class="nav-event" id="vol-name-display">Volunteer</div>
+      <div class="nav-role-badge">VOLUNTEER</div>
+      <button class="nav-logout" id="volunteer-logout">Sign out</button>
+    </nav>
+
+    <div class="volunteer-body">
+      <!-- Mission Alert Banner (hidden by default) -->
+      <div class="mission-alert-banner" id="vol-mission-banner" style="display:none">
+        <div class="mission-alert-icon">🚨</div>
+        <div class="mission-alert-content">
+          <div class="mission-alert-title" id="vol-mission-title">Mission Alert</div>
+          <div class="mission-alert-desc" id="vol-mission-desc">Proceed to assigned zone immediately.</div>
+        </div>
+        <button class="mission-accept-btn" id="vol-mission-accept">Accept</button>
+      </div>
+
+      <!-- GPS + Stats Strip -->
+      <div class="vol-stats-strip">
+        <div class="vol-stat">
+          <div class="vol-stat-value" id="vol-scan-count">0</div>
+          <div class="vol-stat-label">Scans Today</div>
+        </div>
+        <div class="vol-stat">
+          <div class="vol-stat-value" id="vol-last-gate">—</div>
+          <div class="vol-stat-label">Last Gate Assigned</div>
+        </div>
+        <div class="vol-stat" style="align-items:flex-end">
+          <div class="gps-status-row">
+            <div class="gps-dot-indicator" id="gps-dot"></div>
+            <span class="gps-active" id="vol-gps-status">GPS Active</span>
+          </div>
+          <div class="vol-stat-label" id="vol-gps-coords" style="font-family:var(--font-mono);font-size:0.6rem">Acquiring…</div>
+        </div>
+      </div>
+
+      <!-- Scanner Card -->
+      <div class="scanner-card">
+        <div class="scanner-card-header">
+          <h3>QR Scanner — Perimeter</h3>
+          <div class="scanner-mode-toggle">
+            <button class="mode-btn active" id="mode-demo-btn" onclick="app.vol.setMode('demo')">List</button>
+            <button class="mode-btn" id="mode-mock-btn" onclick="app.vol.setMode('mock')">Scanner (Mock)</button>
+            <button class="mode-btn" id="mode-camera-btn" onclick="app.vol.setMode('camera')">Camera (Auto)</button>
+          </div>
+        </div>
+
+        <!-- Demo Mode: Attendee List -->
+        <div id="vol-demo-panel" class="attendee-scan-list">
+          <!-- Attendee scan items injected by JS -->
+        </div>
+
+        <!-- Mock Scanner Mode -->
+        <div id="vol-mock-panel" style="display:none; flex:1; flex-direction:column;">
+          <div class="mock-scanner-container">
+            <div class="scanner-viewfinder">
+              <div class="corner tl"></div>
+              <div class="corner tr"></div>
+              <div class="corner bl"></div>
+              <div class="corner br"></div>
+              <div class="scan-beam"></div>
+              <div class="scanner-hint">Align QR Code within frame</div>
+            </div>
+            <div class="scanner-simulation-bg"></div>
+          </div>
+          <div class="mock-controls">
+            <button class="mock-auto-scan-btn" onclick="app.vol.triggerMockScan()">
+              ⚡ Simulate QR Detection
+            </button>
+            <div class="mock-scanner-status">Status: <span>READY</span></div>
+          </div>
+        </div>
+
+        <!-- Camera Mode -->
+        <div id="vol-camera-panel" style="display:none;padding:16px;text-align:center;flex:1">
+          <div id="vol-qr-reader" style="width:100%;max-width:300px;margin:0 auto"></div>
+          <div style="margin-top:12px;font-size:0.72rem;color:var(--text-muted)">Point camera at attendee QR code</div>
+        </div>
+
+        <!-- Scan Log -->
+        <div class="scan-log" id="vol-scan-log">
+          <div class="scan-log-title">Scan Log</div>
+          <div id="vol-scan-log-entries">
+            <div style="font-size:0.72rem;color:var(--text-muted)">No scans yet</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SCREEN: SERVICE PROVIDER
+       ═══════════════════════════════════════════════════════ -->
+  <div id="screen-provider" class="screen">
+    <nav class="top-nav">
+      <div class="nav-brand">Prompt<span>War</span></div>
+      <div class="nav-event" id="prov-name-display">Stall Provider</div>
+      <div class="nav-role-badge">PROVIDER</div>
+      <button class="nav-logout" id="provider-logout">Sign out</button>
+    </nav>
+
+    <div class="provider-body">
+      <div class="provider-intro">
+        Toggle your stall status so attendees see live availability.<br/>
+        Keep this updated — it directly affects where fans are routed.
+      </div>
+
+      <div class="provider-stalls-grid" id="provider-stalls-grid">
+        <!-- Stall cards injected by JS -->
+      </div>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+<!-- External Libraries -->
+<script src="https://unpkg.com/html5-qrcode/html5-qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<!-- App Config & Logic -->
+<script src="firebase-config.js"></script>
+<script src="main.js"></script>
+</body>
+</html>
