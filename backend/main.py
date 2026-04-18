@@ -21,6 +21,8 @@ from typing import Any
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 from backend.elastic_entry import elastic_entry, update_velocity, crowd_density_pct, recommended_diversion
 from backend.models import (
@@ -446,6 +448,20 @@ async def health():
         "attendees":  len(state.attendees),
         "volunteers": len(state.volunteers),
     }
+
+
+# ── Integrated Gateway (For Cloud Run Preview) ─────────────────────
+@app.get("/", include_in_schema=False)
+async def serve_ui():
+    return FileResponse("index.html")
+
+@app.get("/{file_path:path}", include_in_schema=False)
+async def serve_assets(file_path: str):
+    import os
+    if file_path in ["main.js", "styles.css"]:
+        if os.path.exists(file_path):
+            return FileResponse(file_path)
+    raise HTTPException(status_code=404, detail="Not found")
 if __name__ == "__main__":
     import sys
     print("\n[!] ERROR: Do not run this file directly with 'python backend/main.py'.")
