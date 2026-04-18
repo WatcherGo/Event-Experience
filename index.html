@@ -357,7 +357,6 @@
           <h3>QR Scanner — Perimeter</h3>
           <div class="scanner-mode-toggle">
             <button class="mode-btn active" id="mode-demo-btn" onclick="app.vol.setMode('demo')">List</button>
-            <button class="mode-btn" id="mode-mock-btn" onclick="app.vol.setMode('mock')">Scanner (Mock)</button>
             <button class="mode-btn" id="mode-camera-btn" onclick="app.vol.setMode('camera')">Camera (Auto)</button>
           </div>
         </div>
@@ -367,26 +366,6 @@
           <!-- Attendee scan items injected by JS -->
         </div>
 
-        <!-- Mock Scanner Mode -->
-        <div id="vol-mock-panel" style="display:none; flex:1; flex-direction:column;">
-          <div class="mock-scanner-container">
-            <div class="scanner-viewfinder">
-              <div class="corner tl"></div>
-              <div class="corner tr"></div>
-              <div class="corner bl"></div>
-              <div class="corner br"></div>
-              <div class="scan-beam"></div>
-              <div class="scanner-hint">Align QR Code within frame</div>
-            </div>
-            <div class="scanner-simulation-bg"></div>
-          </div>
-          <div class="mock-controls">
-            <button class="mock-auto-scan-btn" onclick="app.vol.triggerMockScan()">
-              ⚡ Simulate QR Detection
-            </button>
-            <div class="mock-scanner-status">Status: <span>READY</span></div>
-          </div>
-        </div>
 
         <!-- Camera Mode -->
         <div id="vol-camera-panel" style="display:none;padding:16px;text-align:center;flex:1">

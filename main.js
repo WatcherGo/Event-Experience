@@ -672,11 +672,9 @@ class VolunteerController {
   setMode(mode) {
     this.mode = mode;
     document.getElementById('mode-demo-btn').classList.toggle('active', mode === 'demo');
-    document.getElementById('mode-mock-btn')?.classList.toggle('active', mode === 'mock');
     document.getElementById('mode-camera-btn').classList.toggle('active', mode === 'camera');
     
     document.getElementById('vol-demo-panel').style.display   = mode === 'demo' ? '' : 'none';
-    document.getElementById('vol-mock-panel').style.display   = mode === 'mock' ? 'flex' : 'none';
     document.getElementById('vol-camera-panel').style.display = mode === 'camera' ? '' : 'none';
     
     if (mode === 'camera') this._startCameraScanner();

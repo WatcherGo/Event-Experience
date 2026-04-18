@@ -1035,66 +1035,11 @@ svg { display: block; }
   animation: status-pulse 1.5s infinite;
 }
 
-.mock-scanner-container {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  max-width: 320px;
-  margin: 16px auto;
-  background: #000;
-  border-radius: var(--r-lg);
-  overflow: hidden;
-  box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
-  border: 4px solid var(--bg-elevated);
-}
 
-.scanner-simulation-bg {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at center, #1a1a2e 0%, #07071a 100%);
-  opacity: 0.9;
-  animation: camera-shake 10s ease-in-out infinite;
-}
 
 .scanner-simulation-bg::after {
   content: 'LIVE FEED — PERIMETER CAMERA';
   position: absolute;
-  bottom: 20px;
-  left: 20px;
-  color: var(--green);
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.1em;
-  opacity: 0.8;
-}
-
-/* Scanline and Vignette overlays */
-.scanner-simulation-bg::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-              linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
-  background-size: 100% 3px, 3px 100%;
-  pointer-events: none;
-  z-index: 2;
-}
-
-.scanner-simulation-bg::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle, transparent 40%, rgba(0,0,0,0.6) 100%);
-  pointer-events: none;
-  z-index: 3;
-}
-
-@keyframes camera-shake {
-  0%, 100% { transform: scale(1.02) translate(0,0); }
-  25% { transform: scale(1.02) translate(1px, 1px); }
-  50% { transform: scale(1.02) translate(-0.5px, 0.5px); }
-  75% { transform: scale(1.02) translate(0.5px, -1px); }
-}
 
 .scanner-card {
   flex: 1;
