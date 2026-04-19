@@ -1,5 +1,7 @@
 # 🛡️ PromptWar — Real-Time Crowd Orchestration Engine
 
+> **Live Demo:** [https://promptwar-engine-847386568861.us-central1.run.app](https://promptwar-engine-847386568861.us-central1.run.app)
+
 Enhancing the physical event experience at large-scale sporting venues through a dynamic, AI-advised human-sensor network.
 
 ---
